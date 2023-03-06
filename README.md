@@ -13,6 +13,17 @@ CS20 APPS UCU
 ./start_compose.sh
 ```
 
+# To run requests
+- Post
+    ```{bash}
+    curl -d '{"text":"fox flex 1"}' -H "Content-Type: application/json" -X POST http://localhost:8000/
+    ```
+
+- Get
+    ```{bash}
+    curl http://localhost:8000/
+    ```
+
 # *Version: branch-name*
 * lb1: micro_basics
 * lb2: hazelcast
