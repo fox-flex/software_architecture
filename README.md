@@ -5,7 +5,8 @@ CS20 APPS UCU
 
 # Description
 
-[link](https://docs.google.com/document/d/1_DCyflPIPCw0-uPTA1xNc3-8m2aUn1mloxOnP1UJ6ho/edit)
+ - [task](https://docs.google.com/document/d/1_DCyflPIPCw0-uPTA1xNc3-8m2aUn1mloxOnP1UJ6ho/edit)
+ - [report](https://docs.google.com/document/d/1U_niSISsY4pxj3SZhXh9tCea0tI5vheTHNicdRDZbFU/edit)
 
 # To run
 ```{bash}
