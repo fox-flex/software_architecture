@@ -3,7 +3,12 @@
 Here are **Software Architecture 2023** course lab tasks.
 CS20 APPS UCU
 
-*Version: branch-name*
+# To run
+```{bash}
+./start_compose.sh
+```
+
+# *Version: branch-name*
 * lb1: micro_basics
 * lb2: hazelcast
 * lb3: micro_hazelcast

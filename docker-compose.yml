@@ -1,0 +1,31 @@
+version: '3'
+services:
+  facade:
+    build:
+      context: ./facade
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./facade/.env
+    depends_on:
+      - message
+      - logging
+
+  message:
+    build:
+      context: ./message
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8000"
+    env_file:
+      - ./message/.env
+
+  logging:
+    build:
+      context: ./logging
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8000"
+    env_file:
+      - ./logging/.env
