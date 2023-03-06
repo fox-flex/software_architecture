@@ -39,16 +39,14 @@ async def get_messages() -> str:
     response_data = []
 
     async with logging_client.get(logging_service_url) as response:
-        # response_data["logging_service"] = await response.text()
         response_txt = await response.text()
         response_data.append(response_txt[1:-1])
-        # print('Logging Service Response:', response.status, response_txt)
+        print('Logging Service Response:', response.status, response_txt)
         response.raise_for_status()
 
     async with message_client.get(message_service_url) as response:
-        # response_data["message_service"] = await response.text()
         response_txt = await response.text()
         response_data.append(response_txt[1:-1])
-        # print('Message Service Response:', response.status, response_txt)
+        print('Message Service Response:', response.status, response_txt)
         response.raise_for_status()
     return '\n'.join(response_data)
