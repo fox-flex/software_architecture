@@ -1,0 +1,4 @@
+hazelcast:
+  queue:
+    tiny_queue:
+      max-size: 10
