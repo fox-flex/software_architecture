@@ -1,15 +1,17 @@
 import os
 from typing import Dict
+import random
 
-import uuid
+from uuid import uuid4 as get_uuid
 import aiohttp
 from pydantic import BaseModel
-from fastapi import FastAPI, Form, HTTPException
+from fastapi import FastAPI, HTTPException
 
 app = FastAPI()
 
-logging_service_url = os.environ['LOGGING_SERVICE_URL']
-message_service_url = os.environ['MESSAGE_SERVICE_URL']
+try_log_n = 10
+logging_urls = os.environ['LOGGING_SERVICE_URLS'].split(",")
+message_url = os.environ['MESSAGE_SERVICE_URL']
 
 logging_client = aiohttp.ClientSession()
 message_client = aiohttp.ClientSession()
@@ -24,22 +26,25 @@ class Text(BaseModel):
     text: str = ""
 
 @app.post("/", status_code=201)
-# async def accept_message(pld: str) -> Dict[str, str]:
-async def accept_message(pld: Text) -> Dict[str, str]:
-    text = pld.text
-    print(f'received msg: {text}')
+async def accept_message(text: Text) -> Dict[str, str]:
+    msg = text.text
+    print(f'received msg: {msg}')
 
-    msg_id = str(uuid.uuid4())
-    payload = {"uuid": msg_id, "body": text}
+    msg_id = str(get_uuid())
+    payload = {"uuid": msg_id, "body": msg}
 
-    try:
-        async with logging_client.post(logging_service_url, json=payload) as response:
-            response_data = await response.json()
-            response.raise_for_status()
-            return response_data
-    except aiohttp.ClientError as e:
-        print(f"Error sending message to logging service: {e}")
+    for i in range(try_log_n):
+        logging_url = random.choice(logging_urls)
+        print(f'sending to {logging_url}')
+        try:
+            async with logging_client.post(logging_url, json=payload) as response:
+                response_data = await response.json()
+                response.raise_for_status()
+                return response_data
+        except aiohttp.ClientError as e:
+            print(f"POST to logging service attemp #{i}: Error : {e}")
     
+    print(f'does not finish logging in {try_log_n} tries')
     raise HTTPException(status_code=500, detail="Error sending message to logging service")
 
 
@@ -47,21 +52,23 @@ async def accept_message(pld: Text) -> Dict[str, str]:
 async def get_messages() -> str:
     response_data = []
 
-    try:
-        async with logging_client.get(logging_service_url) as response:
-            response_txt = await response.text()
-            response_data.append(response_txt[1:-1])
-            print('Logging Service Response:', response.status, response_txt)
-            response.raise_for_status()
-    except aiohttp.ClientError as e:
-        print(f"Error retrieving messages from logging service: {e}")
+    for i in range(try_log_n):
+        logging_url = random.choice(logging_urls)
+        try:
+            async with logging_client.get(logging_url) as response:
+                response_txt = await response.text()
+                response_data.append(response_txt[1:-1])
+                response.raise_for_status()
+                print('GET: {logging_url} success. Response: {response_txt}')
+        except aiohttp.ClientError as e:
+            print(f"GET from logging service attemp #{i}: Error : {e}")
 
     try:
-        async with message_client.get(message_service_url) as response:
+        async with message_client.get(message_url) as response:
             response_txt = await response.text()
             response_data.append(response_txt[1:-1])
-            print('Message Service Response:', response.status, response_txt)
             response.raise_for_status()
+            print('GET: {message_url} success. Response: {response_txt}')
     except aiohttp.ClientError as e:
         print(f"Error retrieving messages from message service: {e}")
     

@@ -4,28 +4,114 @@ services:
     build:
       context: ./facade
       dockerfile: Dockerfile
+    container_name: facade
     ports:
       - "8000:8000"
     env_file:
       - ./facade/.env
     depends_on:
       - message
-      - logging
+      - logging-1
+      - logging-2
+      - logging-3
+    networks:
+      - hz-net
 
   message:
     build:
       context: ./message
       dockerfile: Dockerfile
+    container_name: message
     ports:
       - "8001:8000"
     env_file:
       - ./message/.env
+    networks:
+      - hz-net
 
-  logging:
+  logging-1:
     build:
       context: ./logging
       dockerfile: Dockerfile
+    container_name: logging-1
     ports:
       - "8002:8000"
     env_file:
       - ./logging/.env
+    depends_on:
+      - hz-1
+    networks:
+      - hz-net
+
+  logging-2:
+    build:
+      context: ./logging
+      dockerfile: Dockerfile
+    container_name: logging-2
+    ports:
+      - "8003:8000"
+    env_file:
+      - ./logging/.env
+    depends_on:
+      - hz-2
+    networks:
+      - hz-net
+
+  logging-3:
+    build:
+      context: ./logging
+      dockerfile: Dockerfile
+    container_name: logging-3
+    ports:
+      - "8004:8000"
+    env_file:
+      - ./logging/.env
+    depends_on:
+      - hz-3
+    networks:
+      - hz-net
+
+  hz-1:
+    image: hazelcast/hazelcast:latest
+    container_name: hz-1
+    ports:
+    - "5701:5701"
+    networks:
+    - hz-net
+    environment:
+    - HZ_CLUSTERNAME=hz-cluster
+
+  hz-2:
+    image: hazelcast/hazelcast:latest
+    container_name: hz-2
+    ports:
+    - "5702:5701"
+    networks:
+    - hz-net
+    environment:
+    - HZ_CLUSTERNAME=hz-cluster
+
+  hz-3:
+    image: hazelcast/hazelcast:latest
+    container_name: hz-3
+    ports:
+    - "5703:5701"
+    networks:
+    - hz-net
+    environment:
+    - HZ_CLUSTERNAME=hz-cluster
+  
+  hz-mc:
+    image: hazelcast/management-center
+    container_name: hz-mc
+    environment:
+      - MC_CLUSTER_MEMBERS=hz-1,hz-2,hz-3
+      - HZ_CLUSTERNAME=hz-cluster
+    ports:
+      - "8080:8080"
+    networks:
+      - hz-net
+
+networks:
+  hz-net:
+    name: hz-net
