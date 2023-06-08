@@ -1,5 +1,7 @@
 import os
 from typing import Dict
+import sys
+sys.stdout.flush()
 
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -32,7 +34,7 @@ class Message(BaseModel):
 @app.get("/")
 def get_logs():
     res = ";".join(list(db.values()))
-    print(f'GET: returning: {res}')
+    print(f'GET: returning: "{res}"')
     return res
 
 
@@ -40,7 +42,7 @@ def get_logs():
 def write_log(msg: Message):
     print(f'POST: recived msg: {msg}')
     db.put(msg.uuid, msg.body)
-    return {"message": "Logged successfully!"}
+    return {"message": "LOGGING: Logged successfully!"}
 
 
 @app.exception_handler(HTTPException)
